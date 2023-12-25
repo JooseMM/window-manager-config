@@ -69,7 +69,9 @@ modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
+	awful.layout.suit.tile.top,
 	awful.layout.suit.tile,
+	awful.layout.suit.floating,
 }
 
 -- Menubar configuration
@@ -81,7 +83,6 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a textclock widget
-mytextclock = wibox.widget.textclock()
 
 local taglist_buttons = gears.table.join(
 	awful.button({}, 1, function(t)
@@ -145,7 +146,7 @@ awful.screen.connect_for_each_screen(function(s)
 	--Each screen has its own tag table.
 	--Each screen has its own tag table.
 	--Each screen has its own tag table.
-	local names = { "1", "2", "3", nil }
+	local names = { " 󰊴 ", "  ", "  ", nil }
 	local l = awful.layout.suit -- Just to save some typing: use an alias.
 	local layouts = { l.floating, l.tile, l.floating, l.fair, l.max, l.floating, l.tile.left, l.floating, l.floating }
 	awful.tag(names, s, layouts)
@@ -173,7 +174,7 @@ awful.screen.connect_for_each_screen(function(s)
 		screen = s,
 		filter = awful.widget.taglist.filter.all,
 		style = {
-			shape = gears.shape.pie,
+			shape = gears.shape.rounded_rect,
 		},
 		layout = {
 			spacing = -12,
@@ -186,37 +187,32 @@ awful.screen.connect_for_each_screen(function(s)
 					{
 						{
 							{
-								id = "index_role",
-								widget = wibox.widget.textbox,
+								{
+									id = "index_role",
+									widget = wibox.widget.textbox,
+								},
+								right = 0,
+								left = 0,
+								widget = wibox.container.margin,
 							},
-							margins = 4,
-							widget = wibox.container.margin,
+							shape = gears.shape.rounded_rect,
+							widget = wibox.container.background,
 						},
-						fg = "#1a2038",
-						bg = "#dddddd",
-						shape = gears.shape.circle,
-						widget = wibox.container.background,
+						{
+							id = "text_role",
+							widget = wibox.widget.textbox,
+						},
+						layout = wibox.layout.fixed.horizontal,
 					},
-					{
-						margins = 0,
-						widget = wibox.container.margin,
-					},
-					{
-						--id = "text_role",
-						widget = wibox.widget.textbox,
-					},
-					layout = wibox.layout.fixed.horizontal,
+					left = 2,
+					right = 2,
+					widget = wibox.container.margin,
 				},
-				left = 18,
-				right = 18,
-				widget = wibox.container.margin,
+				id = "background_role",
+				widget = wibox.container.background,
 			},
-			id = "background_role",
-			widget = wibox.container.background,
-
-			update_callback = function(self, c3, index, objects) --luacheck: no unused args
-				self:get_children_by_id("index_role")[1].markup = "<b> " .. index .. " </b>"
-			end,
+			left = 20,
+			widget = wibox.container.margin,
 		},
 		buttons = taglist_buttons,
 	})
@@ -230,22 +226,6 @@ awful.screen.connect_for_each_screen(function(s)
 			shape_border_color = "#777777",
 			shape = gears.shape.rounded_bar,
 		},
-		layout = {
-			spacing = 1,
-			--spacing_widget = {
-			--	{
-			--		forced_width = 5,
-			--		shape = gears.shape.circle,
-			--		widget = wibox.widget.separator,
-			--	},
-			--	valign = "center",
-			--	halign = "center",
-			--	widget = wibox.container.place,
-			--},
-			layout = wibox.layout.flex.horizontal,
-		},
-		-- Notice that there is *NO* wibox.wibox prefix, it is a template,
-		-- not a widget instance.
 		widget_template = {
 			{
 				{
@@ -255,13 +235,17 @@ awful.screen.connect_for_each_screen(function(s)
 								id = "icon_role",
 								widget = wibox.widget.imagebox,
 							},
-							margins = 9,
+							top = 5,
+							bottom = 5,
+							left = 2,
+							right = 2,
 							widget = wibox.container.margin,
 						},
 						{
-							--id = "text_role",
+							--		id = "text_role",
 							widget = wibox.widget.textbox,
 						},
+
 						layout = wibox.layout.fixed.horizontal,
 					},
 					left = 5,
@@ -272,29 +256,34 @@ awful.screen.connect_for_each_screen(function(s)
 				widget = wibox.container.background,
 			},
 			left = 2,
-			right = 5,
+			right = 2,
 			top = 2,
 			bottom = 2,
 			widget = wibox.container.margin,
 		},
 	})
 end)
+--So apperently you have to wrapp your widgets
+--inside a container to be able to give it margins
+-- Create a text clock widget with background and margin
+mytextclock = wibox.container.margin(
+	wibox.container.background(wibox.widget.textclock(), "", gears.shape.rounded_bar),
+	0, -- No vertical margin
+	20 -- Horizontal margin of 20 pixels
+)
+--wibox.container.margin(mytextclock, 0, 20)}
+
 -- Create the wibox
 screen[1].mywibox = awful.wibar({
 	screen = screen[1],
 	--	width = 500,
 	position = "top",
-	height = 40,
-	width = 600,
-	bg = "#111421",
-	opacity = 0.9,
-	shape = function(cr, width, height)
-		gears.shape.rounded_bar(cr, width, height)
-	end,
+	height = 35,
+	opacity = 0.8,
+	--	shape = function(cr, width, height)
+	--		gears.shape.rounded_bar(cr, width, height)
+	--	end,
 })
---So apperently you have to wrapp your widgets
---inside a container to be able to give it margins
-mytextclock_with_margin = wibox.container.margin(mytextclock, 0, 14)
 
 --Add widgets to the wibox
 screen[1].mywibox:setup({
@@ -312,7 +301,7 @@ screen[1].mywibox:setup({
 		layout = wibox.layout.fixed.horizontal,
 		screen[1].mypromptbox,
 	},
-	mytextclock_with_margin,
+	mytextclock,
 	--screen[1].mytasklist, -- Middle widget
 	--	{ -- Right widgets
 	--		layout = wibox.layout.fixed.horizontal,
@@ -324,7 +313,23 @@ screen[1].mywibox:setup({
 wibox.widget({
 	widget = wib,
 })
-
+-- Setting shortcuts
+-- Mouse Bindings
+clientbuttons = gears.table.join(
+	awful.button({}, 1, function(c)
+		c:emit_signal("request::activate", "mouse_click", { raise = true })
+	end),
+	awful.button({ modkey }, 1, function(c)
+		c:emit_signal("request::activate", "mouse_click", { raise = true })
+		awful.mouse.client.move(c)
+	end),
+	awful.button({ modkey }, 3, function(c)
+		c:emit_signal("request::activate", "mouse_click", { raise = true })
+		awful.mouse.client.resize(c)
+	end)
+)
+root.buttons(gears.table.join(awful.button({}, 4, awful.tag.viewnext), awful.button({}, 5, awful.tag.viewprev)))
+-- Keyboard bindings
 globalkeys = gears.table.join(
 	awful.key({ modkey }, "s", hotkeys_popup.show_help, { description = "show help", group = "awesome" }),
 	awful.key({ modkey }, "Left", awful.tag.viewprev, { description = "view previous", group = "tag" }),
@@ -365,6 +370,12 @@ globalkeys = gears.table.join(
 	awful.key({ modkey }, "Return", function()
 		awful.spawn(terminal)
 	end, { description = "open a terminal", group = "launcher" }),
+	awful.key({ modkey }, ";", function()
+		awful.spawn.with_shell("setxkbmap es")
+	end, { description = "set keyboard layout to spanish", group = "launcher" }),
+	awful.key({ modkey }, ".", function()
+		awful.spawn.with_shell("setxkbmap us")
+	end, { description = "set keyboard layout to english", group = "launcher" }),
 	awful.key({ modkey, "Control" }, "r", awesome.restart, { description = "reload awesome", group = "awesome" }),
 	awful.key({ modkey, "Shift" }, "q", awesome.quit, { description = "quit awesome", group = "awesome" }),
 
@@ -405,15 +416,6 @@ globalkeys = gears.table.join(
 	awful.key({ modkey }, "r", function()
 		awful.screen.focused().mypromptbox:run()
 	end, { description = "run prompt", group = "launcher" }),
-
-	awful.key({ modkey }, "x", function()
-		awful.prompt.run({
-			prompt = "Run Lua code: ",
-			textbox = awful.screen.focused().mypromptbox.widget,
-			exe_callback = awful.util.eval,
-			history_path = awful.util.get_cache_dir() .. "/history_eval",
-		})
-	end, { description = "lua execute prompt", group = "awesome" }),
 	-- Menubar
 	awful.key({ modkey }, "p", function()
 		menubar.show()
@@ -566,8 +568,8 @@ awful.rules.rules = {
 	{ rule_any = { type = { "normal", "dialog" } }, properties = { titlebars_enabled = false } },
 }
 -- }}}
-
-screen[1].mywibox.y = 5
+--Gap for the wibox
+--screen[1].mywibox.y = 0
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
 	c:emit_signal("request::activate", "mouse_enter", { raise = false })
@@ -579,11 +581,11 @@ end)
 client.connect_signal("unfocus", function(c)
 	c.border_color = beautiful.border_normal
 end)
-mytextclock.font = "MesloLGS NF 10"
 -- custom config
-beautiful.useless_gap = 20
+beautiful.useless_gap = 15
 -- startup programs
-awful.spawn.with_shell("compton")
-awful.spawn.with_shell("xrandr --auto --output HDMI-A-0  --mode 1920x1080")
+awful.spawn.with_shell("picom")
+awful.spawn.with_shell("xrandr --auto --output HDMI-A-0  --mode 1360x768")
+awful.spawn.with_shell("nitrogen --restore")
 --function to control volume with keyboard
 -- Volume control function
