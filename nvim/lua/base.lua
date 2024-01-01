@@ -1,10 +1,6 @@
 require("keymaps")
---local telescope = require("plugins.telescope")
---local colorscheme = require("plugins.colorscheme")
+
 local plugins = require("plugins")
-
---add lazy.nvim package manager 
-
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
