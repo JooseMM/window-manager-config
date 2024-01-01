@@ -1,5 +1,3 @@
-print("from config")
-
 local Main = {}
 --vim enable/disable options
 vim.o.relativenumber 	= true
